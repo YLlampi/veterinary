@@ -1,0 +1,54 @@
+{% extends 'quotas/base.html' %}
+
+
+{% block style %}
+{% endblock style %}
+
+
+
+{% block content %}
+    <div class="container">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <form method="POST">
+            {% csrf_token %}
+            <label for="startDate">Fecha(Mes-Año) :</label>
+            <input name="startDate" id="startDate" class="date-picker" placeholder="Ingresa Fecha.."/>
+            <input name="id_veterinario" id="id_veterinario" placeholder="ID veterinario"/>
+            <button type="submit">Pagar</button>
+        </form>
+
+        <hr>
+
+        <h4>Detalle Quotas de: {{ user.get_full_name }}</h4>
+        <h5>Pagado Hasta: {{ user.pagado_hasta_month }} - {{ user.pagado_hasta_year }}</h5>
+        <h5>Activo Hasta: {{ user.activo_hasta_month }} - {{ user.activo_hasta_year }}</h5>
+    </div>
+
+{% endblock content %}
+
+
+
+{% block js %}
+
+    <script type="text/javascript">
+        $(function () {
+            $('.date-picker').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: false,
+                dateFormat: 'mm-yy',
+                onClose: function (dateText, inst) {
+                    $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+                }
+            });
+        });
+    </script>
+
+
+{% endblock js %}

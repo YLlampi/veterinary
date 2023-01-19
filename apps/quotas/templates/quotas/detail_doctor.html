@@ -1,0 +1,28 @@
+{% extends 'quotas/base.html' %}
+
+pagado_hasta_month = models.PositiveSmallIntegerField(null=True, blank=True)
+    pagado_hasta_year = models.PositiveSmallIntegerField(null=True, blank=True)
+
+    activo_hasta_month = models.PositiveSmallIntegerField(null=True, blank=True)
+    activo_hasta_year = models.PositiveSmallIntegerField(null=True, blank=True)
+
+
+
+{% block content %}
+    <div class="container">
+        <div class="card">
+            <h5 class="card-header">{{ doctor.get_full_name }}</h5>
+            <div class="card-body">
+                <h5 class="card-title"><strong>ID Médico: </strong>{{ doctor.id_veterinarian }}</h5>
+                <p class="card-text"><strong>Nombre: </strong>{{ doctor.first_name }}</p>
+                <p class="card-text"><strong>Apellido: </strong>{{ doctor.last_name }}</p>
+                <p class="card-text"><strong>¿Activo?: </strong>{{ doctor.es_activo }}</p>
+                <p class="card-text"><strong>Pagado Hasta: </strong>{{ doctor.pagado_hasta_month }} - {{ doctor.pagado_hasta_year }}</p>
+                <p class="card-text"><strong>Activo Hasta: </strong>{{ doctor.activo_hasta_month }} - {{ doctor.activo_hasta_year }}</p>
+                <a href="{% url 'update_doctor' doctor.id %}" class="btn btn-primary">Actualizar Datos</a>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock content %}

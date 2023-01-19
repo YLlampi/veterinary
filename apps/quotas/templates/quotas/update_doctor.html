@@ -1,0 +1,18 @@
+{% extends 'quotas/base.html' %}
+
+{% block content %}
+
+    <div class="container">
+        <form method="POST">
+
+            <!-- Security token -->
+            {% csrf_token %}
+
+            <!-- Using the formset -->
+            {{ form.as_p }}
+
+            <input type="submit" value="Actualizar Datos">
+        </form>
+    </div>
+
+{% endblock content %}

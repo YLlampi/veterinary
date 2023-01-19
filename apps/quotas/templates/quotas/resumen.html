@@ -1,0 +1,42 @@
+{% extends 'quotas/base.html' %}
+
+{% block content %}
+
+    <div class="container">
+
+    </div>
+
+
+    <div class="container">
+        <table class="table table-dark">
+            <thead>
+            <tr>
+                <th scope="col">ID Veterianrio</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Apellido</th>
+                <th scope="col">¿Activo?</th>
+                <th scope="col">Pagado Hasta</th>
+                <th scope="col">Caducidad Quota</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for usuario in usuarios %}
+                {% if usuario.es_activo %}
+                    <tr class="table-success">
+                {% else %}
+                    <tr class="table-danger">
+                {% endif %}
+            <th scope="row"><a href="{% url 'detail_doctor' usuario.id %}">{{ usuario.id_veterinarian }}</a></th>
+            <td>{{ usuario.first_name }}</td>
+            <td>{{ usuario.last_name }}</td>
+            <td>{{ usuario.es_activo }}</td>
+            <td>{{ usuario.pagado_hasta_month }} - {{ usuario.pagado_hasta_year }}</td>
+            <td>{{ usuario.activo_hasta_month }} - {{ usuario.activo_hasta_year }}</td>
+            </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+{% endblock content %}
