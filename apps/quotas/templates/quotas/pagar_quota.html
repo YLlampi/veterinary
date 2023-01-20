@@ -11,7 +11,8 @@
         {% if messages %}
             <ul class="messages">
                 {% for message in messages %}
-                    <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    <li {% if message.tags %} class="{{ message.tags }} alert alert-danger" role="alert"{% endif %}>{{ message }}</li>
+
                 {% endfor %}
             </ul>
         {% endif %}
@@ -19,13 +20,15 @@
             {% csrf_token %}
             <label for="startDate">Fecha(Mes-Año) :</label>
             <input name="startDate" id="startDate" class="date-picker" placeholder="Ingresa Fecha.."/>
+            {% comment %}
             <input name="id_veterinario" id="id_veterinario" placeholder="ID veterinario"/>
+            {% endcomment %}
             <button type="submit">Pagar</button>
         </form>
 
         <hr>
 
-        <h4>Detalle Quotas de: {{ user.get_full_name }}</h4>
+        <h4>{{ user.get_full_name }}</h4>
         <h5>Pagado Hasta: {{ user.pagado_hasta_month }} - {{ user.pagado_hasta_year }}</h5>
         <h5>Activo Hasta: {{ user.activo_hasta_month }} - {{ user.activo_hasta_year }}</h5>
     </div>

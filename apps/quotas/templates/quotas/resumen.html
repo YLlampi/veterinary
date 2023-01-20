@@ -3,7 +3,13 @@
 {% block content %}
 
     <div class="container">
-
+        <p>
+        <form method="GET">
+            {% csrf_token %}
+            <input type="text" id="kword" name="kword" placeholder="Ingrese nombre">
+            <button type="submit">Consultar</button>
+        </form>
+        </p>
     </div>
 
 
@@ -16,14 +22,15 @@
                 <th scope="col">Apellido</th>
                 <th scope="col">¿Activo?</th>
                 <th scope="col">Pagado Hasta</th>
-                <th scope="col">Caducidad Quota</th>
+                <th scope="col">Caducidad Cuota</th>
+                <th scope="col">Pagar Cuota</th>
             </tr>
             </thead>
             <tbody>
             {% for usuario in usuarios %}
                 {% if usuario.es_activo %}
                     <tr class="table-success">
-                {% else %}
+                        {% else %}
                     <tr class="table-danger">
                 {% endif %}
             <th scope="row"><a href="{% url 'detail_doctor' usuario.id %}">{{ usuario.id_veterinarian }}</a></th>
@@ -32,11 +39,80 @@
             <td>{{ usuario.es_activo }}</td>
             <td>{{ usuario.pagado_hasta_month }} - {{ usuario.pagado_hasta_year }}</td>
             <td>{{ usuario.activo_hasta_month }} - {{ usuario.activo_hasta_year }}</td>
+            <td>
+                <!-- Button trigger modal -->
+                <a href="{% url 'pagar_quota' usuario.id %}">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#staticBackdrop">
+                        Pagar
+                    </button>
+                </a>
+
+            </td>
             </tr>
             {% endfor %}
-
             </tbody>
         </table>
     </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Pagar Cuota</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <label for="startDate">Fecha(Mes-Año) :</label>
+                        <input name="startDate" id="startDate" class="date-picker"
+                               placeholder="Ingresa Fecha (Mes-Año)"/>
+                        {% comment %}
+                        <button type="submit">Pagar</button>
+                        {% endcomment %}
+                    </form>
+
+                    <hr>
+
+                    <h4>{{ user.get_full_name }}</h4>
+                    <h5>Pagado Hasta: {{ user.pagado_hasta_month }} - {{ user.pagado_hasta_year }}</h5>
+                    <h5>Activo Hasta: {{ user.activo_hasta_month }} - {{ user.activo_hasta_year }}</h5>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Pagar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock content %}
+
+{% block js %}
+
+    <script type="text/javascript">
+        $(function () {
+            $('.date-picker').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: false,
+                dateFormat: 'mm-yy',
+                onClose: function (dateText, inst) {
+                    $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+                }
+            });
+        });
+    </script>
+
+
+{% endblock js %}

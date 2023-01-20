@@ -2,6 +2,8 @@ import datetime
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Q
+from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from django.contrib import messages  # import messages
 
@@ -23,24 +25,30 @@ def get_date():
 
 def resumen(request):
     context = {}
-    usuarios = UserProfile.objects.all()
 
     actual_year, actual_month = get_date()
 
-    for i in usuarios:
-        us = UserProfile.objects.get(id=i.id)
-        if int(actual_year) < int(us.activo_hasta_year):
-            us.es_activo = True
-        elif int(actual_year) > int(us.activo_hasta_year):
-            us.es_activo = False
-        else:
-            if int(actual_month) <= int(us.activo_hasta_month):
+    palabra_clave = request.GET.get('kword', )
+    if palabra_clave:
+        usuarios = UserProfile.objects.filter(
+            Q(nombre__icontains=palabra_clave) | Q(id_veterinarian__icontains=palabra_clave)
+        )
+        for i in usuarios:
+            us = UserProfile.objects.get(id=i.id)
+            if int(actual_year) < int(us.activo_hasta_year):
                 us.es_activo = True
-            else:
+            elif int(actual_year) > int(us.activo_hasta_year):
                 us.es_activo = False
-        us.save()
+            else:
+                if int(actual_month) <= int(us.activo_hasta_month):
+                    us.es_activo = True
+                else:
+                    us.es_activo = False
+            us.save()
+    else:
+        usuarios = UserProfile.objects.all()
 
-    context['usuarios'] = UserProfile.objects.all()
+    context['usuarios'] = usuarios
 
     return render(request, 'quotas/resumen.html', context)
 
@@ -51,7 +59,10 @@ def add_doctor(request):
     form = CustomUserForm(request.POST or None)
     if form.is_valid():
         form.save()
-        redirect('resumen')
+        messages.success(request, "Médico añadido correctamente")
+        user = UserProfile.objects.last()
+
+        return HttpResponseRedirect("/quotas/detail_doctor/" + str(user.id))
 
     context['form'] = form
     return render(request, "quotas/add_doctor.html", context)
@@ -82,13 +93,18 @@ def update_doctor(request, pk):
     return render(request, "quotas/update_doctor.html", context)
 
 
-def mostrar_fecha(request):
+def mostrar_fecha(request, pk):
+
     f1 = request.POST.get('startDate', '')
-    idd = request.POST.get('id_veterinario', '')
+    # idd = request.POST.get('id_veterinario', '')
 
     context = {}
+    user = UserProfile.objects.get(id=pk)
+
+
     if request.method == 'POST':
 
+        """
         try:
             user = UserProfile.objects.get(id=int(idd))
         except:
@@ -99,6 +115,7 @@ def mostrar_fecha(request):
             #return render(request, 'quotas/pagar_quota.html')
             print("==================================")
             return redirect('pagar_quota')
+        """
 
         if f1:
             month = int(f1[:2])
@@ -106,11 +123,11 @@ def mostrar_fecha(request):
 
             if year < user.pagado_hasta_year:
                 messages.warning(request, "Fecha Incorrecta, Corregir Año")
-                return redirect('pagar_quota')
+                return HttpResponseRedirect(f'/quotas/pagar_quota/{user.id}')
 
             elif month <= user.pagado_hasta_month and year == user.pagado_hasta_year:
                 messages.warning(request, "Fecha Incorrecta, Corregir Mes")
-                return redirect('pagar_quota')
+                return HttpResponseRedirect(f'/quotas/pagar_quota/{user.id}')
 
 
             user.pagado_hasta_month = month
@@ -126,8 +143,12 @@ def mostrar_fecha(request):
             user.activo_hasta_month = month
             user.activo_hasta_year = year
 
+
+            messages.success(request, "Pagado correctamente")
             user.save()
 
-        context['user'] = UserProfile.objects.get(id=int(idd))
+        #context['user'] = UserProfile.objects.get(id=int(idd))
+
+    context['user'] = user
 
     return render(request, 'quotas/pagar_quota.html', context)
